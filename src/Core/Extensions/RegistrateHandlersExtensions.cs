@@ -91,7 +91,7 @@ public static class RegistrateHandlersExtensions
         // Adjust SafeDecorate to handle missing services gracefully
         void SafeDecorate(Type serviceType, Type decoratorType)
         {
-            if (services.Any(sd => sd.ServiceType == serviceType))
+            if (services.Any(sd => sd.ServiceType == serviceType && sd.ImplementationType != decoratorType))
             {
                 try
                 {
@@ -105,7 +105,7 @@ public static class RegistrateHandlersExtensions
             }
             else
             {
-                Console.WriteLine($"Skipping decorator {decoratorType.Name} as no base service for {serviceType.Name} is registered.");
+                Console.WriteLine($"Skipping decorator {decoratorType.Name} as no base service for {serviceType.Name} is registered or it is already decorated.");
             }
         }
 

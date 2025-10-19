@@ -46,3 +46,16 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ---
 
 OroCQRS is a lightweight and flexible alternative to Mediatr, designed for developers seeking a customized solution to implement the CQRS pattern in their .NET applications.
+
+## Informe de Cobertura de Código
+
+Se ha generado un informe de cobertura de código utilizando Coverlet. A continuación, se presenta un resumen:
+
+- **Líneas cubiertas**: 11
+- **Líneas válidas**: 11
+- **Porcentaje de cobertura de líneas**: 100%
+- **Ramas cubiertas**: 0
+- **Ramas válidas**: 0
+- **Porcentaje de cobertura de ramas**: 0%
+
+El informe detallado se encuentra disponible en el archivo `coverage.cobertura.xml` generado en la carpeta de resultados de pruebas.
