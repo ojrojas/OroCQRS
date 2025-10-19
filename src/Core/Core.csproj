@@ -5,6 +5,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>OroCQRS.Core</RootNamespace>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>OroCQRS.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Oscar Rojas</Authors>
+    <Company>OroCQRS</Company>
+    <Description>A lightweight and extensible CQRS library for .NET applications.</Description>
+    <PackageTags>CQRS;Mediatr;Command;Query;Notification;.NET</PackageTags>
+    <RepositoryUrl>https://github.com/ojrojas/OroCQRS</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ojrojas/OroCQRS</PackageProjectUrl>
+    <PackageIcon>Assets/orocqrs.png</PackageIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +25,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Scrutor" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets/orocqrs.png" Pack="true" PackagePath="Assets/" />
   </ItemGroup>
 
 </Project>
