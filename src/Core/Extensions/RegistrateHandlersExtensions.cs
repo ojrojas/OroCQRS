@@ -6,6 +6,33 @@ namespace OroCQRS.Core.Extensions;
 
 public static class RegistrateHandlersExtensions
 {
+    /// <summary>
+    /// Registers CQRS (Command Query Responsibility Segregation) handlers and their decorators into the 
+    /// dependency injection container. This method scans assemblies for implementations of command, query, 
+    /// and notification handlers, registers them with appropriate lifetimes, and applies logging decorators 
+    /// to enhance functionality.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to which the handlers and decorators will be added.</param>
+    /// <remarks>
+    /// This method performs the following tasks:
+    /// <list type="bullet">
+    /// <item><description>Registers logging services with a console logger and a minimum log level of Information.</description></item>
+    /// <item><description>Scans the entry assembly and all loaded assemblies for implementations of <c>ICommandHandler</c>, 
+    /// <c>IQueryHandler</c>, and <c>INotificationHandler</c>, and registers them as scoped services.</description></item>
+    /// <item><description>Ensures all handlers are registered before applying decorators to avoid missing service issues.</description></item>
+    /// <item><description>Applies logging decorators to command, query, and notification handlers safely, ensuring that 
+    /// decorators are only applied if the base service exists and is not already decorated.</description></item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// To use this method, call it during the service configuration phase in your application:
+    /// <code>
+    /// public void ConfigureServices(IServiceCollection services)
+    /// {
+    ///     services.AddCqrsHandlers();
+    /// }
+    /// </code>
+    /// </example>
     public static void AddCqrsHandlers(this IServiceCollection services)
     {
         services.AddLogging(builder =>
