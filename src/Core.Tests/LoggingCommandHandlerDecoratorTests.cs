@@ -14,7 +14,7 @@ public class LoggingCommandHandlerDecoratorTests
         var mockLogger = new Mock<ILogger<LoggingCommandHandlerDecorator<ICommand>>>();
         var mockHandler = new Mock<ICommandHandler<ICommand>>();
         var command = new Mock<ICommand>();
-        command.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        command.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingCommandHandlerDecorator<ICommand>(mockLogger.Object, mockHandler.Object);
 
@@ -39,7 +39,7 @@ public class LoggingCommandHandlerDecoratorTests
         var mockLogger = new Mock<ILogger<LoggingCommandHandlerDecorator<ICommand>>>();
         var mockHandler = new Mock<ICommandHandler<ICommand>>();
         var command = new Mock<ICommand>();
-        command.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        command.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingCommandHandlerDecorator<ICommand>(mockLogger.Object, mockHandler.Object);
 

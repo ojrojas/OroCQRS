@@ -12,19 +12,19 @@ public class RegistrateHandlersExtensionsTests
 {
     // Clases de prueba con CorrelationId
     public class TestCommand : ICommand {
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public Guid CorrelationId () => Guid.NewGuid();
     }
 
     public class TestCommandWithResult : ICommand<string> {
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public Guid CorrelationId () => Guid.NewGuid();
     }
 
     public class TestNotification : INotification {
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public Guid CorrelationId () => Guid.NewGuid();
     }
 
     public class TestNotificationWithResult : INotification<string> {
-        public Guid CorrelationId { get; set; } = Guid.NewGuid();
+        public Guid CorrelationId () => Guid.NewGuid();
     }
 
     [Fact]

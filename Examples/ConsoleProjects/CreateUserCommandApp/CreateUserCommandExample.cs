@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using OroCQRS.Core.Interfaces;
 
-public class CreateUserCommand : OroCQRS.Core.Interfaces.ICommand
+public class CreateUserCommand : ICommand
 {
     public string UserName { get; set; }
-    public Guid CorrelationId { get; } = Guid.NewGuid();
+    public Guid CorrelationId() => Guid.NewGuid();
 
     public CreateUserCommand()
     {

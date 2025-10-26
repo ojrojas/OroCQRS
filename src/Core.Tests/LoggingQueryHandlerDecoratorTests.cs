@@ -14,7 +14,7 @@ public class LoggingQueryHandlerDecoratorTests
         var realLogger = new Mock<ILogger<LoggingQueryHandlerDecorator<IQuery<object>, object>>>();
         var mockHandler = new Mock<IQueryHandler<IQuery<object>, object>>();
         var query = new Mock<IQuery<object>>();
-        query.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        query.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingQueryHandlerDecorator<IQuery<object>, object>(realLogger.Object ,mockHandler.Object);
 
@@ -39,7 +39,7 @@ public class LoggingQueryHandlerDecoratorTests
         var realLogger = new Mock<ILogger<LoggingQueryHandlerDecorator<IQuery<object>, object>>>();
         var mockHandler = new Mock<IQueryHandler<IQuery<object>, object>>();
         var query = new Mock<IQuery<object>>();
-        query.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        query.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingQueryHandlerDecorator<IQuery<object>, object>(realLogger.Object, mockHandler.Object);
 
@@ -64,7 +64,7 @@ public class LoggingQueryHandlerDecoratorTests
         var realLogger = new Mock<ILogger<LoggingQueryHandlerDecorator<IQuery<object>, object>>>();
         var mockHandler = new Mock<IQueryHandler<IQuery<object>, object>>();
         var query = new Mock<IQuery<object>>();
-        query.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        query.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingQueryHandlerDecorator<IQuery<object>, object>(realLogger.Object, mockHandler.Object);
 

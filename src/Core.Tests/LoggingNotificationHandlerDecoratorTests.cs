@@ -14,7 +14,7 @@ public class LoggingNotificationHandlerDecoratorTests
         var mockLogger = new Mock<ILogger<LoggingNotificationHandlerDecorator<INotification>>>();
         var mockHandler = new Mock<INotificationHandler<INotification>>();
         var notification = new Mock<INotification>();
-        notification.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        notification.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingNotificationHandlerDecorator<INotification>( mockLogger.Object, mockHandler.Object);
 
@@ -39,7 +39,7 @@ public class LoggingNotificationHandlerDecoratorTests
         var mockLogger = new Mock<ILogger<LoggingNotificationHandlerDecorator<INotification>>>();
         var mockHandler = new Mock<INotificationHandler<INotification>>();
         var notification = new Mock<INotification>();
-        notification.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        notification.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingNotificationHandlerDecorator<INotification>( mockLogger.Object, mockHandler.Object);
 
@@ -64,7 +64,7 @@ public class LoggingNotificationHandlerDecoratorTests
         var mockLogger = new Mock<ILogger<LoggingNotificationHandlerDecorator<INotification>>>();
         var mockHandler = new Mock<INotificationHandler<INotification>>();
         var notification = new Mock<INotification>();
-        notification.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        notification.Setup(c => c.CorrelationId()).Returns(Guid.NewGuid());
 
         var decorator = new LoggingNotificationHandlerDecorator<INotification>( mockLogger.Object, mockHandler.Object);
 

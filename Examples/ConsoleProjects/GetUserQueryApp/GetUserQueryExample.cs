@@ -10,7 +10,7 @@ using OroCQRS.Core.Interfaces;
 public class GetUserQuery : IQuery<User>
 {
     public int UserId { get; set; }
-    public Guid CorrelationId { get; } = Guid.NewGuid();
+    public Guid CorrelationId() => Guid.NewGuid();
 }
 
 public class GetUserQueryHandler : IQueryHandler<GetUserQuery, User>

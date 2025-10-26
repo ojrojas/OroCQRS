@@ -11,7 +11,7 @@ public class UserCreatedNotification : INotification
 {
     public string UserName { get; set; }
     public int UserId { get; set; }
-    public Guid CorrelationId { get; } = Guid.NewGuid();
+    public Guid CorrelationId() => Guid.NewGuid();
 
     public UserCreatedNotification()
     {

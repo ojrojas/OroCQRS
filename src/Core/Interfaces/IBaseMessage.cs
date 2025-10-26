@@ -6,5 +6,5 @@ namespace OroCQRS.Core.Interfaces;
 
 public interface IBaseMessage
 {
-    public Guid CorrelationId { get; }
+    public Guid CorrelationId();
 }
