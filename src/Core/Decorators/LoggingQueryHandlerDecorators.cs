@@ -9,7 +9,7 @@ public class LoggingQueryHandlerDecorator<TQuery, TResult>
 IQueryHandler<TQuery, TResult> innerHandler)
 : IQueryHandler<TQuery, TResult> where TQuery : IQuery<TResult>
 {
-    public async ValueTask<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+    public async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[QUERY] {typeof(TQuery).Name} with CorrelationId: {query.CorrelationId}");
         var result = await innerHandler.HandleAsync(query, cancellationToken);

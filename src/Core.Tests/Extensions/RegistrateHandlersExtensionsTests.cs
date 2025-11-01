@@ -11,20 +11,24 @@ namespace OroCQRS.Core.Tests.Extensions;
 public class RegistrateHandlersExtensionsTests
 {
     // Clases de prueba con CorrelationId
-    public class TestCommand : ICommand {
-        public Guid CorrelationId () => Guid.NewGuid();
+    public class TestCommand : ICommand
+    {
+        public Guid CorrelationId() => Guid.NewGuid();
     }
 
-    public class TestCommandWithResult : ICommand<string> {
-        public Guid CorrelationId () => Guid.NewGuid();
+    public class TestCommandWithResult : ICommand<string>
+    {
+        public Guid CorrelationId() => Guid.NewGuid();
     }
 
-    public class TestNotification : INotification {
-        public Guid CorrelationId () => Guid.NewGuid();
+    public class TestNotification : INotification
+    {
+        public Guid CorrelationId() => Guid.NewGuid();
     }
 
-    public class TestNotificationWithResult : INotification<string> {
-        public Guid CorrelationId () => Guid.NewGuid();
+    public class TestNotificationWithResult : INotification<string>
+    {
+        public Guid CorrelationId() => Guid.NewGuid();
     }
 
     [Fact]
@@ -88,7 +92,7 @@ public class RegistrateHandlersExtensionsTests
 
     private class MockCommandHandlerWithResult : ICommandHandler<TestCommandWithResult, string>
     {
-        public ValueTask<string> HandleAsync(TestCommandWithResult command, CancellationToken cancellationToken = default) => new ValueTask<string>("Result");
+        public Task<string> HandleAsync(TestCommandWithResult command, CancellationToken cancellationToken = default) => new(x => "Result", cancellationToken);
     }
 
     private class MockNotificationHandler : INotificationHandler<TestNotification>
@@ -98,6 +102,6 @@ public class RegistrateHandlersExtensionsTests
 
     private class MockNotificationHandlerWithResult : INotificationHandler<TestNotificationWithResult, string>
     {
-        public ValueTask<string> HandleAsync(TestNotificationWithResult notification, CancellationToken cancellationToken = default) => new ValueTask<string>("Result");
+        public Task<string> HandleAsync(TestNotificationWithResult notification, CancellationToken cancellationToken = default) => new(x => "Result", cancellationToken);
     }
 }

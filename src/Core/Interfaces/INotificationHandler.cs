@@ -35,6 +35,6 @@ where TNotification : INotification<TResult>
     /// <param name="notification">The notification to be handled.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation, containing the result of the handling.</returns>
-    ValueTask<TResult> HandleAsync(
+    Task<TResult> HandleAsync(
         TNotification notification, CancellationToken cancellationToken);
 }

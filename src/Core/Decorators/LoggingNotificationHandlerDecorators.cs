@@ -21,7 +21,7 @@ public class LoggingNotificationHandlerDecorator<TNotification, TResult>
 INotificationHandler<TNotification, TResult> innerHandler)
 : INotificationHandler<TNotification, TResult> where TNotification : INotification<TResult>
 {
-    public async ValueTask<TResult> HandleAsync(TNotification notification, CancellationToken cancellationToken)
+    public async Task<TResult> HandleAsync(TNotification notification, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[NOTIFICATION] {typeof(TNotification).Name} with CorrelationId: {notification.CorrelationId}");
         var result = await innerHandler.HandleAsync(notification, cancellationToken);

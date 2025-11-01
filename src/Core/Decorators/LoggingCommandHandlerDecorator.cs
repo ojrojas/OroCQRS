@@ -12,7 +12,7 @@ public class LoggingCommandHandlerDecorator<TCommand, TResult>(
 
 where TCommand : ICommand<TResult>
 {
-    public async ValueTask<TResult> HandleAsync(TCommand command, CancellationToken cancellationToken)
+    public async Task<TResult> HandleAsync(TCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[COMMAND] {typeof(TCommand).Name} with CorrelationId: {command.CorrelationId}");
         var result = await innerHandler.HandleAsync(command, cancellationToken);

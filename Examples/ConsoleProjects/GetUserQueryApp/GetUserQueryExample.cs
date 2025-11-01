@@ -15,7 +15,7 @@ public class GetUserQuery : IQuery<User>
 
 public class GetUserQueryHandler : IQueryHandler<GetUserQuery, User>
 {
-    public async ValueTask<User> HandleAsync(GetUserQuery query, CancellationToken cancellationToken)
+    public async Task<User> HandleAsync(GetUserQuery query, CancellationToken cancellationToken)
     {
         Console.WriteLine($"Fetching user with ID: {query.UserId}");
         await Task.Delay(100, cancellationToken); // Simulate some work
