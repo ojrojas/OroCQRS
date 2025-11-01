@@ -24,9 +24,6 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Scrutor" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Assets/orocqrs.png" Pack="true" PackagePath="Assets/" />
   </ItemGroup>
 
