@@ -44,46 +44,9 @@ public static class RegistrateHandlersExtensions
         // Debugging: Log registration process
         Console.WriteLine("Registering CQRS Handlers...");
 
-        // Register command handlers
-        services.Scan(scan => scan
-            .FromEntryAssembly()
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        services.Scan(scan => scan
-           .FromEntryAssembly()
-           .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
-           .AsImplementedInterfaces()
-           .WithScopedLifetime());
-
-        // Debugging: Log registration process
-        Console.WriteLine("Registering CQRS Handlers...");
-
-        // Register notifications handlers
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<,>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        Console.WriteLine("Command handlers registered.");
-
-        // Register query handlers
-        services.Scan(scan => scan
-            .FromEntryAssembly()
-            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-        Console.WriteLine("Query handlers registered.");
 
         // Ensure all handlers are registered before applying decorators
+        // Register commands handlers
         services.Scan(scan => scan
             .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
@@ -96,12 +59,14 @@ public static class RegistrateHandlersExtensions
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
+        // Register queries handlers
         services.Scan(scan => scan
             .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
+        // Register notifications handlers
         services.Scan(scan => scan
             .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
             .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<>)))
