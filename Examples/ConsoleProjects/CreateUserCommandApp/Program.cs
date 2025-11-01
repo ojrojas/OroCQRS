@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OroCQRS.Core.Extensions;
 using OroCQRS.Core.Interfaces;
+using OroCQRS.Core.Services;
 
 namespace CreateUserCommandApp
 {
@@ -31,9 +32,9 @@ namespace CreateUserCommandApp
 
             logger.LogInformation("Application started.");
 
-            var command = new CreateUserCommand { UserName = "Alice" };
-            var handler = provider.GetRequiredService<ICommandHandler<CreateUserCommand>>();
-            await handler.HandleAsync(command, CancellationToken.None);
+            CreateUserCommand command = new(UserName: "Alice");
+            var handler = provider.GetRequiredService<ISender>();
+            await handler.Send(command, CancellationToken.None);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace UserCreatedNotificationApp
                     builder.SetMinimumLevel(LogLevel.Information);
                 });
 
+            
             services.AddCqrsHandlers();
             var provider = services.BuildServiceProvider();
 
@@ -31,9 +32,9 @@ namespace UserCreatedNotificationApp
 
             logger.LogInformation("Application started.");
 
-            var notification = new UserCreatedNotification { UserName = "Bob" };
-            var handler = provider.GetRequiredService<INotificationHandler<UserCreatedNotification>>();
-            await handler.HandleAsync(notification, CancellationToken.None);
+            var notification = new UserCreatedNotification ( UserName :"Bob", UserId: 1);
+            var handler = provider.GetRequiredService<ISender>();
+            await handler.Send(notification, CancellationToken.None);
         }
     }
 }

@@ -1,12 +1,7 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OroCQRS.Core.Interfaces;
 using OroCQRS.Core.Services;
-using Xunit;
 
 namespace OroCQRS.Core.Tests.Services;
 

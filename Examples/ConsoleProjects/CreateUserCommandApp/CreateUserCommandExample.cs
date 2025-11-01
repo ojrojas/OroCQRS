@@ -7,15 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using OroCQRS.Core.Interfaces;
 
-public class CreateUserCommand : ICommand
+public record CreateUserCommand(string UserName) : ICommand
 {
-    public string UserName { get; set; }
     public Guid CorrelationId() => Guid.NewGuid();
-
-    public CreateUserCommand()
-    {
-        UserName = string.Empty;
-    }
 }
 
 public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>

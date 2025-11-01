@@ -22,9 +22,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Define endpoints
-app.MapPost("/notifications", async (UserCreatedNotification notification, INotificationHandler<UserCreatedNotification> handler) =>
+app.MapPost("/notifications", async (
+    UserCreatedNotification notification, 
+    ISender handler) =>
 {
-    await handler.HandleAsync(notification, CancellationToken.None);
+    await handler.Send(notification, CancellationToken.None);
     return Results.Ok("Notification processed successfully");
 });
 

@@ -45,7 +45,7 @@ public static class RegistrateHandlersExtensions
         Console.WriteLine("Registering CQRS Handlers...");
 
         var assembly = Assembly.GetCallingAssembly();
-        services.AddScoped<ISender, Sender>();
+        services.AddTransient<ISender, Sender>();
 
         var handlerInterfaceTypes = new[] {
             typeof(ICommandHandler<>),

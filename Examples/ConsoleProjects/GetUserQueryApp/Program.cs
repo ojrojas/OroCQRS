@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OroCQRS.Core.Extensions;
 using OroCQRS.Core.Interfaces;
+using OroCQRS.Core.Services;
 
 namespace GetUserQueryApp
 {
@@ -18,12 +19,13 @@ namespace GetUserQueryApp
         public static async Task Main(string[] args)
         {
             var services = new ServiceCollection();
-             services.AddLogging(builder =>
-             {
-                 builder.AddConsole();
-                 builder.SetMinimumLevel(LogLevel.Information);
-             });
+            services.AddLogging(builder =>
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(LogLevel.Information);
+            });
 
+            services.AddScoped<ISender,Sender>();
             services.AddCqrsHandlers();
             var provider = services.BuildServiceProvider();
 
@@ -32,9 +34,9 @@ namespace GetUserQueryApp
 
             logger.LogInformation("Application started.");
 
-            var query = new GetUserQuery { UserId = 1 };
-            var handler = provider.GetRequiredService<IQueryHandler<GetUserQuery, User>>();
-            var user = await handler.HandleAsync(query, CancellationToken.None);
+            var query = new GetUserQuery(UserId: 1);
+            var handler = provider.GetRequiredService<ISender>();
+            var user = await handler.Send(query, CancellationToken.None);
             Console.WriteLine($"User fetched: {user.Name}");
         }
     }

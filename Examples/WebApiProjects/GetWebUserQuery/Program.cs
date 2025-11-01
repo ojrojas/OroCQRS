@@ -22,9 +22,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Define endpoints
-app.MapGet("/users/{id:guid}", async (Guid id, IQueryHandler<GetUserQuery, string> handler) =>
+app.MapGet("/users/{id:guid}", async (Guid id, ISender handler) =>
 {
-    var result = await handler.HandleAsync(new GetUserQuery(id), CancellationToken.None);
+    var result = await handler.Send(new GetUserQuery(id), CancellationToken.None);
     return Results.Ok(result);
 });
 

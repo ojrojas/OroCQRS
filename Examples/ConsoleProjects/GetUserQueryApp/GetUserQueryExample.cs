@@ -7,9 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using OroCQRS.Core.Interfaces;
 
-public class GetUserQuery : IQuery<User>
+public record GetUserQuery(int UserId) : IQuery<User>
 {
-    public int UserId { get; set; }
     public Guid CorrelationId() => Guid.NewGuid();
 }
 

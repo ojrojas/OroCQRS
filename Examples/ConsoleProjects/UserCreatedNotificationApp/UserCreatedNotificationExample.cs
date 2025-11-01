@@ -7,16 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using OroCQRS.Core.Interfaces;
 
-public class UserCreatedNotification : INotification
+public record UserCreatedNotification(string UserName, int UserId) : INotification
 {
-    public string UserName { get; set; }
-    public int UserId { get; set; }
     public Guid CorrelationId() => Guid.NewGuid();
-
-    public UserCreatedNotification()
-    {
-        UserName = string.Empty;
-    }
 }
 
 public class UserCreatedNotificationHandler : INotificationHandler<UserCreatedNotification>
