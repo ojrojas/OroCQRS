@@ -1,0 +1,15 @@
+@UserCreateWebNotification_HostAddress = http://localhost:5253
+
+GET {{UserCreateWebNotification_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### User Created Notification
+POST http://localhost:5000/notifications
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane.doe@example.com"
+}

@@ -44,69 +44,46 @@ public static class RegistrateHandlersExtensions
         // Debugging: Log registration process
         Console.WriteLine("Registering CQRS Handlers...");
 
+        var assembly = Assembly.GetCallingAssembly();
+        services.AddScoped<ISender, Sender>();
 
-        // Ensure all handlers are registered before applying decorators
-        // Register commands handlers
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        var handlerInterfaceTypes = new[] {
+            typeof(ICommandHandler<>),
+            typeof(ICommandHandler<,>),
+            typeof(INotificationHandler<>),
+            typeof(INotificationHandler<,>),
+            typeof(IQueryHandler<,>)
+        };
 
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        var types = assembly.GetTypes();
 
-        // Register queries handlers
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        var handlerTypes = handlerInterfaceTypes
+            .SelectMany(interfaceType => GetHandlerTypes(types, interfaceType))
+            .ToList();
 
-        // Register notifications handlers
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        services.Scan(scan => scan
-            .FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
-            .AddClasses(classes => classes.AssignableTo(typeof(INotificationHandler<,>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        // Improved decorator registration to ensure base services exist
-        // Adjust SafeDecorate to handle missing services gracefully
-        void SafeDecorate(Type serviceType, Type decoratorType)
+        foreach (var handler in handlerTypes)
         {
-            if (services.Any(sd => sd.ServiceType == serviceType && sd.ImplementationType != decoratorType))
-            {
-                try
-                {
-                    services.Decorate(serviceType, decoratorType);
-                    Console.WriteLine($"Applied decorator {decoratorType.Name} to {serviceType.Name}");
-                }
-                catch (Scrutor.DecorationException ex)
-                {
-                    Console.WriteLine($"Failed to apply decorator {decoratorType.Name} to {serviceType.Name}: {ex.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Skipping decorator {decoratorType.Name} as no base service for {serviceType.Name} is registered or it is already decorated.");
-            }
+            services.AddScoped((Type)handler.Interface, (Type)handler.Implementation);
         }
+    }
 
-        // Apply logging decorators safely
-        SafeDecorate(typeof(ICommandHandler<>), typeof(LoggingCommandHandlerDecorator<>));
-        SafeDecorate(typeof(ICommandHandler<,>), typeof(LoggingCommandHandlerDecorator<,>));
-        SafeDecorate(typeof(IQueryHandler<,>), typeof(LoggingQueryHandlerDecorator<,>));
-        SafeDecorate(typeof(INotificationHandler<>), typeof(LoggingNotificationHandlerDecorator<>));
-        SafeDecorate(typeof(INotificationHandler<,>), typeof(LoggingNotificationHandlerDecorator<,>));
-        Console.WriteLine("Logging decorators applied.");
+    /// Retrieves a collection of handler types that implement a specified generic handler interface type.
+    /// </summary>
+    /// <param name="types">An array of <see cref="Type"/> objects to search for handler implementations.</param>
+    /// <param name="handlerInterfaceType">The generic handler interface type to match against.</param>
+    /// <returns>
+    /// An enumerable collection of dynamic objects, where each object contains:
+    /// <list type="bullet">
+    /// <item><description><c>Interface</c>: The generic handler interface type implemented by the class.</description></item>
+    /// <item><description><c>Implementation</c>: The concrete class implementing the handler interface.</description></item>
+    /// </list>
+    /// </returns>
+    private static IEnumerable<dynamic> GetHandlerTypes(Type[] types, Type handlerInterfaceType)
+    {
+        return types
+            .Where(type => !type.IsAbstract && !type.IsInterface)
+            .SelectMany(type => type.GetInterfaces()
+                .Where(inter => inter.IsGenericType && inter.GetGenericTypeDefinition() == handlerInterfaceType)
+                .Select(i => new { Interface = i, Implementation = type }));
     }
 }

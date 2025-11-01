@@ -14,6 +14,6 @@ public interface INotification : IRequest {}
 /// Represents a notification that can produce a result of type <typeparamref name="TResult"/>.
 /// </summary>
 /// <typeparam name="TResult">The type of the result produced by the notification.</typeparam>
-public interface INotification<TResult> : INotification
+public interface INotification<out TResult> : IRequest<TResult>
 {
 }

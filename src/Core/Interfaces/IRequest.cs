@@ -9,4 +9,4 @@ namespace OroCQRS.Core.Interfaces;
 /// </summary>
 public interface IRequest : IBaseMessage { }
 
-// public interface IRequest<out IResult> : IBaseMessage { }
+public interface IRequest<out IResult> : IBaseMessage { }

@@ -5,4 +5,5 @@
 global using OroCQRS.Core.Interfaces;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using OroCQRS.Core.Decorators;
+global using System.Reflection;
+global using OroCQRS.Core.Services;

@@ -16,4 +16,4 @@ public interface ICommand : IRequest
 /// Represents a command that returns a result of type <typeparamref name="TResult"/>.
 /// </summary>
 /// <typeparam name="TResult">The type of the result returned by the command.</typeparam>
-public interface ICommand<TResult> : ICommand { }
+public interface ICommand<out TResult> : IRequest<TResult> { }

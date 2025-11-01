@@ -1,0 +1,7 @@
+@GetWebUserQuery_HostAddress = http://localhost:5205
+
+GET {{GetWebUserQuery_HostAddress}}/weatherforecast/
+Accept: application/json
+
+### Get User Query
+GET http://localhost:5000/users/11111111-1111-1111-1111-111111111111

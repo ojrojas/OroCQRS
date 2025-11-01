@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using OroCQRS.Core.Decorators;
 using OroCQRS.Core.Extensions;
 using OroCQRS.Core.Interfaces;
 
@@ -72,8 +71,6 @@ public class RegistrateHandlersExtensionsTests
         var services = new ServiceCollection();
         services.AddSingleton<ICommandHandler<TestCommand>, MockCommandHandler>();
         services.AddSingleton<INotificationHandler<TestNotification>, MockNotificationHandler>();
-        services.AddSingleton(Mock.Of<ILogger<LoggingCommandHandlerDecorator<TestCommand>>>());
-        services.AddSingleton(Mock.Of<ILogger<LoggingNotificationHandlerDecorator<TestNotification>>>());
 
         // Act
         services.AddCqrsHandlers();

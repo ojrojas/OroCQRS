@@ -1,0 +1,10 @@
+@CreateWebUserCommand_HostAddress = https://localhost:7120
+
+### Create User Command
+POST {{CreateWebUserCommand_HostAddress}}/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com"
+}
