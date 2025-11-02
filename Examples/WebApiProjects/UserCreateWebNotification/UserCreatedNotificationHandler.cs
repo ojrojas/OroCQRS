@@ -6,7 +6,6 @@ public class UserCreatedNotificationHandler : INotificationHandler<UserCreatedNo
 {
     public Task HandleAsync(UserCreatedNotification notification, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Notification: User created - {notification.Name}, {notification.Email}");
-        return Task.CompletedTask;
+        throw new NotImplementedException();
     }
 }
