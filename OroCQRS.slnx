@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Examples/" />
+  <Folder Name="/Examples/ConsoleProjects/">
+    <Project Path="Examples/ConsoleProjects/CreateUserCommandApp/CreateUserCommandApp.csproj" />
+    <Project Path="Examples/ConsoleProjects/GetUserQueryApp/GetUserQueryApp.csproj" />
+    <Project Path="Examples/ConsoleProjects/UserCreatedNotificationApp/UserCreatedNotificationApp.csproj" />
+  </Folder>
+  <Folder Name="/Examples/WebApiProjects/">
+    <Project Path="Examples/WebApiProjects/CreateWebUserCommand/CreateWebUserCommand.csproj" />
+    <Project Path="Examples/WebApiProjects/GetWebUserQuery/GetWebUserQuery.csproj" />
+    <Project Path="Examples/WebApiProjects/UserCreateWebNotification/UserCreateWebNotification.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Core.Tests/Core.Tests.csproj" />
+    <Project Path="src/Core/Core.csproj" />
+  </Folder>
+</Solution>
