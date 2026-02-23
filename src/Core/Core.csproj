@@ -14,7 +14,7 @@
     <Description>A lightweight and extensible CQRS library for .NET applications.</Description>
     <PackageTags>CQRS;Mediatr;Command;Query;Notification;.NET</PackageTags>
     <RepositoryUrl>https://github.com/ojrojas/OroCQRS</RepositoryUrl>
-    <PackageLicenseExpression>GPLv3</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ojrojas/OroCQRS</PackageProjectUrl>
     <PackageIcon>Assets/orocqrs.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
