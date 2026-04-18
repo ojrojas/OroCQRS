@@ -7,45 +7,18 @@ namespace OroCQRS.Core.Extensions;
 public static class RegistrateHandlersExtensions
 {
     /// <summary>
-    /// Registers CQRS (Command Query Responsibility Segregation) handlers and their decorators into the 
-    /// dependency injection container. This method scans assemblies for implementations of command, query, 
-    /// and notification handlers, registers them with appropriate lifetimes, and applies logging decorators 
-    /// to enhance functionality.
+    /// Registers CQRS (Command Query Responsibility Segregation) handlers into the
+    /// dependency injection container. Scans provided assemblies or the current AppDomain assemblies when none are specified.
     /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to which the handlers and decorators will be added.</param>
-    /// <remarks>
-    /// This method performs the following tasks:
-    /// <list type="bullet">
-    /// <item><description>Registers logging services with a console logger and a minimum log level of Information.</description></item>
-    /// <item><description>Scans the entry assembly and all loaded assemblies for implementations of <c>ICommandHandler</c>, 
-    /// <c>IQueryHandler</c>, and <c>INotificationHandler</c>, and registers them as scoped services.</description></item>
-    /// <item><description>Ensures all handlers are registered before applying decorators to avoid missing service issues.</description></item>
-    /// <item><description>Applies logging decorators to command, query, and notification handlers safely, ensuring that 
-    /// decorators are only applied if the base service exists and is not already decorated.</description></item>
-    /// </list>
-    /// </remarks>
-    /// <example>
-    /// To use this method, call it during the service configuration phase in your application:
-    /// <code>
-    /// public void ConfigureServices(IServiceCollection services)
-    /// {
-    ///     services.AddCqrsHandlers();
-    /// }
-    /// </code>
-    /// </example>
-    public static void AddCqrsHandlers(this IServiceCollection services)
+    /// <param name="services">The service collection to register handlers into.</param>
+    /// <param name="assembliesToScan">Optional set of assemblies to scan for handlers. If empty, all loaded assemblies will be scanned.</param>
+    /// <returns>The original service collection for chaining.</returns>
+    public static IServiceCollection AddCqrsHandlers(this IServiceCollection services, params Assembly[]? assembliesToScan)
     {
-        services.AddLogging(builder =>
-                {
-                    builder.AddConsole();
-                    builder.SetMinimumLevel(LogLevel.Information);
-                });
+        ArgumentNullException.ThrowIfNull(services);
 
-        // Debugging: Log registration process
-        Console.WriteLine("Registering CQRS Handlers...");
-
-        var assembly = Assembly.GetCallingAssembly();
-        services.AddTransient<ISender, Sender>();
+        // Register Sender as scoped to align with typical request-scoped handlers.
+        services.AddScoped<ISender, Sender>();
 
         var handlerInterfaceTypes = new[] {
             typeof(ICommandHandler<>),
@@ -55,35 +28,45 @@ public static class RegistrateHandlersExtensions
             typeof(IQueryHandler<,>)
         };
 
-        var types = assembly.GetTypes();
+        var assemblies = (assembliesToScan != null && assembliesToScan.Length > 0)
+            ? assembliesToScan
+            : AppDomain.CurrentDomain.GetAssemblies();
 
-        var handlerTypes = handlerInterfaceTypes
-            .SelectMany(interfaceType => GetHandlerTypes(types, interfaceType))
-            .ToList();
+        var types = assemblies
+            .Where(a => !a.IsDynamic)
+            .SelectMany(a =>
+            {
+                try
+                {
+                    return a.GetTypes().Where(t => t != null)!;
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    return ex.Types.Where(t => t != null)!;
+                }
+            })
+            .Where(t => t != null)
+            .ToArray();
 
-        foreach (var handler in handlerTypes)
+        var registrations = new List<(Type Service, Type Implementation)>();
+
+        foreach (var iface in handlerInterfaceTypes)
         {
-            services.AddScoped((Type)handler.Interface, (Type)handler.Implementation);
-        }
-    }
+            var matches = types
+                .Where(t => !t.IsAbstract && !t.IsInterface)
+                .SelectMany(type => type.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == iface)
+                    .Select(i => (Service: i, Implementation: type)));
 
-    /// Retrieves a collection of handler types that implement a specified generic handler interface type.
-    /// </summary>
-    /// <param name="types">An array of <see cref="Type"/> objects to search for handler implementations.</param>
-    /// <param name="handlerInterfaceType">The generic handler interface type to match against.</param>
-    /// <returns>
-    /// An enumerable collection of dynamic objects, where each object contains:
-    /// <list type="bullet">
-    /// <item><description><c>Interface</c>: The generic handler interface type implemented by the class.</description></item>
-    /// <item><description><c>Implementation</c>: The concrete class implementing the handler interface.</description></item>
-    /// </list>
-    /// </returns>
-    private static IEnumerable<dynamic> GetHandlerTypes(Type[] types, Type handlerInterfaceType)
-    {
-        return types
-            .Where(type => !type.IsAbstract && !type.IsInterface)
-            .SelectMany(type => type.GetInterfaces()
-                .Where(inter => inter.IsGenericType && inter.GetGenericTypeDefinition() == handlerInterfaceType)
-                .Select(i => new { Interface = i, Implementation = type }));
+            registrations.AddRange(matches);
+        }
+
+        // Register discovered handlers. Duplicate registrations are ignored by grouping.
+        foreach (var reg in registrations.Distinct())
+        {
+            services.AddScoped(reg.Service, reg.Implementation);
+        }
+
+        return services;
     }
 }

@@ -1,7 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
 using OroCQRS.Core.Extensions;
 using OroCQRS.Core.Interfaces;
 
