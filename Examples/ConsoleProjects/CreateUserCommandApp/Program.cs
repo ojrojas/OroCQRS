@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OroCQRS.Core.Extensions;
 using OroCQRS.Core.Interfaces;
-using OroCQRS.Core.Services;
 
 namespace CreateUserCommandApp
 {
