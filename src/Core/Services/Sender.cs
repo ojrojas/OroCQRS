@@ -60,7 +60,7 @@ public class Sender(
     public async Task<TResult?> Send<TResult>(object request, CancellationToken cancellationToken)
     {
         var CorrelationId = Guid.NewGuid();
-         logger.LogInformation($"[SEND OBJECT GENERIC] {request.GetType().Name} with CorrelationId: {CorrelationId}");
+        logger.LogInformation($"[SEND OBJECT GENERIC] {request.GetType().Name} with CorrelationId: {CorrelationId}");
         var handlerTypeCommand = typeof(object).MakeGenericType(request.GetType(), typeof(TResult));
         dynamic handler = provider.GetRequiredService(handlerTypeCommand);
         var response = await handler.HandleAsync((dynamic)request, cancellationToken);
