@@ -62,9 +62,9 @@ public static class RegistrateHandlersExtensions
         }
 
         // Register discovered handlers. Duplicate registrations are ignored by grouping.
-        foreach (var reg in registrations.Distinct())
+        foreach (var (Service, Implementation) in registrations.Distinct())
         {
-            services.AddScoped(reg.Service, reg.Implementation);
+            services.AddScoped(Service, Implementation);
         }
 
         return services;
