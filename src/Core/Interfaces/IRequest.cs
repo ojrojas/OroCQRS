@@ -9,4 +9,8 @@ namespace OroCQRS.Core.Interfaces;
 /// </summary>
 public interface IRequest : IBaseMessage { }
 
-public interface IRequest<out IResult> : IBaseMessage { }
+/// <summary>
+/// Represents a request message that returns a result of type <typeparamref name="TResult"/>.
+/// </summary>
+/// <typeparam name="TResult">The type of the result returned by the request.</typeparam>
+public interface IRequest<out TResult> : IBaseMessage { }

@@ -9,7 +9,7 @@ using OroCQRS.Core.Interfaces;
 
 public record UserCreatedNotification(string UserName, int UserId) : INotification
 {
-    public Guid CorrelationId() => Guid.NewGuid();
+    public Guid CorrelationId => Guid.NewGuid();
 }
 
 public class UserCreatedNotificationHandler : INotificationHandler<UserCreatedNotification>

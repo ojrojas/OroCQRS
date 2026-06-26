@@ -9,7 +9,7 @@ using OroCQRS.Core.Interfaces;
 
 public record CreateUserCommand(string UserName) : ICommand
 {
-    public Guid CorrelationId() => Guid.NewGuid();
+    public Guid CorrelationId => Guid.NewGuid();
 }
 
 public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>

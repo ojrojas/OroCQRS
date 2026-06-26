@@ -9,8 +9,8 @@ namespace OroCQRS.Core.Interfaces;
 /// </summary>
 public interface IBaseMessage
 {
+    /// <summary>
     /// Gets the unique identifier used to correlate this message with related messages or processes.
     /// </summary>
-    /// <returns>A <see cref="Guid"/> representing the correlation ID.</returns>
-    public Guid CorrelationId();
+    public Guid CorrelationId { get; }
 }

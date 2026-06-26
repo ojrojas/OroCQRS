@@ -1,4 +1,4 @@
-@CreateWebUserCommand_HostAddress = https://localhost:7120
+@CreateWebUserCommand_HostAddress = http://localhost:5176
 
 ### Create User Command
 POST {{CreateWebUserCommand_HostAddress}}/users

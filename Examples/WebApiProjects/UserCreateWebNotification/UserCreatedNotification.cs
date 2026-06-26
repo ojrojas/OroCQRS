@@ -4,5 +4,5 @@ namespace UserCreateWebNotification;
 
 public record UserCreatedNotification(string Name, string Email) : INotification
 {
-    public Guid CorrelationId() => Guid.NewGuid();
+    public Guid CorrelationId => Guid.NewGuid();
 }

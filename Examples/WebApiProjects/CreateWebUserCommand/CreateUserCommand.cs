@@ -4,5 +4,5 @@ namespace CreateWebUserCommand;
 
 public record CreateUserCommand(string Name, string Email) : ICommand
 {
-    public Guid CorrelationId() => Guid.NewGuid();
+    public Guid CorrelationId => Guid.NewGuid();
 }

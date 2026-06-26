@@ -11,6 +11,7 @@ namespace OroCQRS.Core.Interfaces;
 /// </summary>
 public interface INotification : IRequest {}
 
+/// <summary>
 /// Represents a notification that can produce a result of type <typeparamref name="TResult"/>.
 /// </summary>
 /// <typeparam name="TResult">The type of the result produced by the notification.</typeparam>

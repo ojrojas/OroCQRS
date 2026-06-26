@@ -4,13 +4,19 @@
 // See the LICENSE file in the project root for details.
 namespace OroCQRS.Core.Services;
 
+/// <summary>
+/// Dispatches commands, queries, and notifications to their registered handlers
+/// by resolving the appropriate handler interface from the service provider.
+/// </summary>
+/// <param name="logger">Logger for diagnostic output.</param>
+/// <param name="provider">Service provider used to resolve handler instances.</param>
 public class Sender(ILogger<Sender> logger, IServiceProvider provider) : ISender
 {
     public async Task Send(ICommand request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        logger.LogInformation("[COMMAND] {Command} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[COMMAND] {Command} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
 
         var handlerType = typeof(ICommandHandler<>).MakeGenericType(request.GetType());
         var handler = provider.GetService(handlerType);
@@ -20,17 +26,18 @@ public class Sender(ILogger<Sender> logger, IServiceProvider provider) : ISender
             throw new InvalidOperationException($"No handler registered for {handlerType}");
         }
 
-        dynamic dynHandler = handler;
-        await dynHandler.HandleAsync((dynamic)request, cancellationToken);
+        var handleMethod = handlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
+        var task = (Task)handleMethod.Invoke(handler, [request, cancellationToken])!;
+        await task.ConfigureAwait(false);
 
-        logger.LogInformation("[COMMAND] {Command} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[COMMAND] {Command} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
     }
 
     public async Task<TResult> Send<TResult>(ICommand<TResult> request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        logger.LogInformation("[COMMAND] {Command} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[COMMAND] {Command} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
 
         var handlerType = typeof(ICommandHandler<,>).MakeGenericType(request.GetType(), typeof(TResult));
         var handler = provider.GetService(handlerType);
@@ -40,18 +47,19 @@ public class Sender(ILogger<Sender> logger, IServiceProvider provider) : ISender
             throw new InvalidOperationException($"No handler registered for {handlerType}");
         }
 
-        dynamic dynHandler = handler;
-        var response = await dynHandler.HandleAsync((dynamic)request, cancellationToken);
+        var handleMethod = handlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
+        var task = (Task<TResult>)handleMethod.Invoke(handler, [request, cancellationToken])!;
+        var response = await task.ConfigureAwait(false);
 
-        logger.LogInformation("[COMMAND] {Command} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
-        return (TResult)response!;
+        logger.LogInformation("[COMMAND] {Command} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
+        return response;
     }
 
     public async Task<TResult> Send<TResult>(IQuery<TResult> request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        logger.LogInformation("[QUERY] {Query} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[QUERY] {Query} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
 
         var handlerType = typeof(IQueryHandler<,>).MakeGenericType(request.GetType(), typeof(TResult));
         var handler = provider.GetService(handlerType);
@@ -61,55 +69,45 @@ public class Sender(ILogger<Sender> logger, IServiceProvider provider) : ISender
             throw new InvalidOperationException($"No handler registered for {handlerType}");
         }
 
-        dynamic dynHandler = handler;
-        var response = await dynHandler.HandleAsync((dynamic)request, cancellationToken);
+        var handleMethod = handlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
+        var task = (Task<TResult>)handleMethod.Invoke(handler, [request, cancellationToken])!;
+        var response = await task.ConfigureAwait(false);
 
-        logger.LogInformation("[QUERY] {Query} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
-        return (TResult)response!;
+        logger.LogInformation("[QUERY] {Query} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
+        return response;
     }
 
     public async Task Send(INotification request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        logger.LogInformation("[NOTIFICATION] {Notification} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[NOTIFICATION] {Notification} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
 
-        var handlerInterface = typeof(INotificationHandler<>).MakeGenericType(request.GetType());
+        var handlerType = typeof(INotificationHandler<>).MakeGenericType(request.GetType());
+        var handlers = provider.GetService(typeof(IEnumerable<>).MakeGenericType(handlerType)) as IEnumerable<object>;
 
-        // First try single handler (common registration pattern in tests and simple DI setups)
-        var singleHandler = provider.GetService(handlerInterface);
-        if (singleHandler != null)
+        if (handlers == null || !handlers.Any())
         {
-            dynamic dynHandler = singleHandler;
-            await dynHandler.HandleAsync((dynamic)request, cancellationToken);
-            logger.LogInformation("[NOTIFICATION] {Notification} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
-            return;
+            logger.LogWarning("No notification handlers registered for {NotificationType}", request.GetType());
+            throw new InvalidOperationException($"No handler registered for {handlerType}");
         }
 
-        // Fallback: try IEnumerable<THandler> to support multiple handlers
-        var enumerableType = typeof(IEnumerable<>).MakeGenericType(handlerInterface);
-        var handlersObj = provider.GetService(enumerableType) as IEnumerable<object>;
+        var handleMethod = handlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
 
-        if (handlersObj != null && handlersObj.Any())
+        foreach (var handler in handlers)
         {
-            foreach (dynamic handler in handlersObj)
-            {
-                await handler.HandleAsync((dynamic)request, cancellationToken);
-            }
-
-            logger.LogInformation("[NOTIFICATION] {Notification} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
-            return;
+            var task = (Task)handleMethod.Invoke(handler, [request, cancellationToken])!;
+            await task.ConfigureAwait(false);
         }
 
-        logger.LogWarning("No notification handlers registered for {NotificationType}", request.GetType());
-        throw new InvalidOperationException($"No handler registered for {handlerInterface}");
+        logger.LogInformation("[NOTIFICATION] {Notification} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
     }
 
     public async Task<TResult> Send<TResult>(INotification<TResult> request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        logger.LogInformation("[NOTIFICATION] {Notification} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
+        logger.LogInformation("[NOTIFICATION] {Notification} with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
 
         var handlerType = typeof(INotificationHandler<,>).MakeGenericType(request.GetType(), typeof(TResult));
         var handler = provider.GetService(handlerType);
@@ -119,36 +117,53 @@ public class Sender(ILogger<Sender> logger, IServiceProvider provider) : ISender
             throw new InvalidOperationException($"No handler registered for {handlerType}");
         }
 
-        dynamic dynHandler = handler;
-        var response = await dynHandler.HandleAsync((dynamic)request, cancellationToken);
+        var handleMethod = handlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
+        var task = (Task<TResult>)handleMethod.Invoke(handler, [request, cancellationToken])!;
+        var response = await task.ConfigureAwait(false);
 
-        logger.LogInformation("[NOTIFICATION] {Notification} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId());
-        return (TResult)response!;
+        logger.LogInformation("[NOTIFICATION] {Notification} handled with CorrelationId: {CorrelationId}", request.GetType().Name, request.CorrelationId);
+        return response;
     }
 
     public async Task<TResult?> Send<TResult>(object request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        if (request is null) throw new ArgumentNullException(nameof(request));
 
-        var correlationId = Guid.NewGuid();
+        var correlationId = request is IBaseMessage msg ? msg.CorrelationId : Guid.NewGuid();
         logger.LogInformation("[SEND OBJECT GENERIC] {Request} with CorrelationId: {CorrelationId}", request.GetType().Name, correlationId);
 
         var handlerInterfacesToTry = new[] { typeof(ICommandHandler<,>), typeof(IQueryHandler<,>), typeof(INotificationHandler<,>) };
 
         foreach (var openHandler in handlerInterfacesToTry)
         {
-            var specificHandlerType = openHandler.MakeGenericType(request.GetType(), typeof(TResult));
+            var specificHandlerType = TryMakeGenericType(openHandler, [request.GetType(), typeof(TResult)]);
+            if (specificHandlerType == null)
+                continue;
+
             var handler = provider.GetService(specificHandlerType);
             if (handler != null)
             {
-                dynamic dynHandler = handler;
-                var response = await dynHandler.HandleAsync((dynamic)request, cancellationToken);
+                var handleMethod = specificHandlerType.GetMethod("HandleAsync", [request.GetType(), typeof(CancellationToken)])!;
+                var task = (Task<TResult>)handleMethod.Invoke(handler, [request, cancellationToken])!;
+                var response = await task.ConfigureAwait(false);
                 logger.LogInformation("[SEND OBJECT GENERIC] {Request} with CorrelationId: {CorrelationId}", request.GetType().Name, correlationId);
-                return (TResult?)response;
+                return response;
             }
         }
 
         logger.LogWarning("No handler found for request type {RequestType} -> {ResultType}", request.GetType(), typeof(TResult));
-        return default;
+        throw new InvalidOperationException($"No handler registered for request type {request.GetType()} with result type {typeof(TResult)}");
+    }
+
+    private static Type? TryMakeGenericType(Type openGeneric, Type[] typeArguments)
+    {
+        try
+        {
+            return openGeneric.MakeGenericType(typeArguments);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
     }
 }

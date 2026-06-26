@@ -13,6 +13,7 @@ public interface ICommand : IRequest
 {
 }
 
+/// <summary>
 /// Represents a command that returns a result of type <typeparamref name="TResult"/>.
 /// </summary>
 /// <typeparam name="TResult">The type of the result returned by the command.</typeparam>

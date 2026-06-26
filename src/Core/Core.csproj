@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>12</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>OroCQRS.Core</RootNamespace>
@@ -14,14 +15,15 @@
     <Description>A lightweight and extensible CQRS library for .NET applications.</Description>
     <PackageTags>CQRS;Mediatr;Command;Query;Notification;.NET</PackageTags>
     <RepositoryUrl>https://github.com/ojrojas/OroCQRS</RepositoryUrl>
-    <PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/ojrojas/OroCQRS</PackageProjectUrl>
     <PackageIcon>Assets/orocqrs.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/orocqrs.png" Pack="true" PackagePath="Assets/" />

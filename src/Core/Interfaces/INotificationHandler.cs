@@ -9,15 +9,16 @@ namespace OroCQRS.Core.Interfaces;
 /// <typeparam name="TNotification">The type of notification to handle. Must implement <see cref="INotification"/>.</typeparam>
 public interface INotificationHandler<in TNotification> where TNotification : INotification
 {
-     /// Handles the specified notification asynchronously and returns a result.
+    /// <summary>
+    /// Handles the specified notification asynchronously.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result returned by the handler.</typeparam>
     /// <param name="notification">The notification to be handled.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation</returns>
     Task HandleAsync(TNotification notification, CancellationToken cancellationToken);
 }
 
+/// <summary>
 /// Defines a handler for processing notifications of a specific type and returning a result.
 /// </summary>
 /// <typeparam name="TNotification">
@@ -29,9 +30,9 @@ public interface INotificationHandler<in TNotification> where TNotification : IN
 public interface INotificationHandler<in TNotification, TResult>
 where TNotification : INotification<TResult>
 {
+    /// <summary>
     /// Handles the specified notification asynchronously and returns a result.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result returned by the handler.</typeparam>
     /// <param name="notification">The notification to be handled.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation, containing the result of the handling.</returns>

@@ -21,8 +21,7 @@ public class SenderTests
     [Fact]
     public async Task Send_Command_Success()
     {
-        // Arrange
-        var command = new Mock<ICommand>().Object;
+        var command = new Mock<ICommand>();
         var handlerMock = new Mock<ICommandHandler<ICommand>>();
         handlerMock.Setup(h => h.HandleAsync(It.IsAny<ICommand>(), It.IsAny<CancellationToken>()))
                    .Returns(Task.CompletedTask);
@@ -30,29 +29,30 @@ public class SenderTests
         _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICommandHandler<>))))
                              .Returns(handlerMock.Object);
 
-        // Act
-        await _sender.Send(command, CancellationToken.None);
+        await _sender.Send(command.Object, CancellationToken.None);
 
-        // Assert
         handlerMock.Verify(h => h.HandleAsync(It.IsAny<ICommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Send_Command_HandlerNotRegistered_ThrowsException()
     {
-        // Arrange
         var command = new Mock<ICommand>();
-        _serviceProviderMock.Setup(sp => sp.GetService(typeof(ICommandHandler<ICommand>)))
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICommandHandler<>))))
                              .Returns((object?)null);
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => _sender.Send(command.Object, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Send_Command_NullArgument_ThrowsException()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _sender.Send((ICommand)null!, CancellationToken.None));
     }
 
     [Fact]
     public async Task Send_Query_Success()
     {
-        // Arrange
         var query = new Mock<IQuery<string>>().Object;
         var handlerMock = new Mock<IQueryHandler<IQuery<string>, string>>();
         handlerMock.Setup(h => h.HandleAsync(It.IsAny<IQuery<string>>(), It.IsAny<CancellationToken>()))
@@ -61,10 +61,8 @@ public class SenderTests
         _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))))
                              .Returns(handlerMock.Object);
 
-        // Act
         var result = await _sender.Send<string>(query, CancellationToken.None);
 
-        // Assert
         Assert.Equal("Result", result);
         handlerMock.Verify(h => h.HandleAsync(It.IsAny<IQuery<string>>(), It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -72,43 +70,87 @@ public class SenderTests
     [Fact]
     public async Task Send_Query_HandlerNotRegistered_ThrowsException()
     {
-        // Arrange
         var query = new Mock<IQuery<string>>();
-        _serviceProviderMock.Setup(sp => sp.GetService(typeof(IQueryHandler<IQuery<string>, string>)))
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryHandler<,>))))
                              .Returns((object?)null);
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => _sender.Send<string>(query.Object, CancellationToken.None));
     }
 
     [Fact]
     public async Task Send_Notification_Success()
     {
-        // Arrange
         var notification = new Mock<INotification>().Object;
         var handlerMock = new Mock<INotificationHandler<INotification>>();
         handlerMock.Setup(h => h.HandleAsync(It.IsAny<INotification>(), It.IsAny<CancellationToken>()))
                    .Returns(Task.CompletedTask);
 
-        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(INotificationHandler<>))))
-                             .Returns(handlerMock.Object);
+        var handlerEnumerable = new[] { handlerMock.Object };
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))))
+                             .Returns(handlerEnumerable);
 
-        // Act
         await _sender.Send(notification, CancellationToken.None);
 
-        // Assert
         handlerMock.Verify(h => h.HandleAsync(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Send_Notification_HandlerNotRegistered_ThrowsException()
     {
-        // Arrange
         var notification = new Mock<INotification>();
-        _serviceProviderMock.Setup(sp => sp.GetService(typeof(INotificationHandler<INotification>)))
-                             .Returns((object?)null);
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))))
+                             .Returns(Array.Empty<object>());
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() => _sender.Send(notification.Object, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Send_CommandWithResult_Success()
+    {
+        var command = new Mock<ICommand<string>>();
+        command.Setup(c => c.CorrelationId).Returns(Guid.NewGuid());
+        var handlerMock = new Mock<ICommandHandler<ICommand<string>, string>>();
+        handlerMock.Setup(h => h.HandleAsync(It.IsAny<ICommand<string>>(), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync("CommandResult");
+
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICommandHandler<,>))))
+                             .Returns(handlerMock.Object);
+
+        var result = await _sender.Send(command.Object, CancellationToken.None);
+
+        Assert.Equal("CommandResult", result);
+        handlerMock.Verify(h => h.HandleAsync(It.IsAny<ICommand<string>>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Send_NotificationWithResult_Success()
+    {
+        var notification = new Mock<INotification<string>>();
+        notification.Setup(n => n.CorrelationId).Returns(Guid.NewGuid());
+        var handlerMock = new Mock<INotificationHandler<INotification<string>, string>>();
+        handlerMock.Setup(h => h.HandleAsync(It.IsAny<INotification<string>>(), It.IsAny<CancellationToken>()))
+                   .ReturnsAsync("NotificationResult");
+
+        _serviceProviderMock.Setup(sp => sp.GetService(It.Is<Type>(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(INotificationHandler<,>))))
+                             .Returns(handlerMock.Object);
+
+        var result = await _sender.Send(notification.Object, CancellationToken.None);
+
+        Assert.Equal("NotificationResult", result);
+        handlerMock.Verify(h => h.HandleAsync(It.IsAny<INotification<string>>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Send_ObjectGeneric_HandlerNotRegistered_ThrowsException()
+    {
+        var request = new object();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sender.Send<string>(request, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Send_ObjectGeneric_NullArgument_ThrowsException()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _sender.Send<string>((object)null!, CancellationToken.None));
     }
 }

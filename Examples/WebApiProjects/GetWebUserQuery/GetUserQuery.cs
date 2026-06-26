@@ -4,5 +4,5 @@ namespace GetWebUserQuery;
 
 public record GetUserQuery(Guid UserId) : IQuery<string>
 {
-    public Guid CorrelationId() => Guid.NewGuid();
+    public Guid CorrelationId => Guid.NewGuid();
 }
